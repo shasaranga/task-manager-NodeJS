@@ -4,6 +4,17 @@ const User = require('../models/user');
 
 const router = new express.Router();
 
+// POST - User Login
+router.post('/users/login', async (req, res)=>{
+    try{
+        const user = await User.findByCredentials(req.body.email,req.body.password);
+        res.send(user);
+    }
+    catch(error){
+        res.status(400).send();
+    }
+})
+
 
 // Create new user - POST
 router.post('/users', async (req, res) => {
@@ -58,6 +69,7 @@ router.patch('/users/:id', async (req, res) => {
 
     // making sure the updates are within the requirement.
     const updates = Object.keys(req.body);
+    console.log(updates);
     const allowedUpdates = ['name', 'email', 'password', 'age'];
 
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
@@ -67,8 +79,18 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
+
+        const user = await User.findById(_id);
+
+        updates.forEach(update =>{
+            user[update] = req.body[update];
+        });
+
+        await user.save();
+
+        // NOTE -> we cant use middleware in this way.
         // new: true will return the updated user
-        const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true });
+        //const user = await User.findByIdAndUpdate(_id, req.body, { new: true, runValidators: true });
 
         if (!user) {
             return res.status(404).send();
