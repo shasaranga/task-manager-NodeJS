@@ -23,21 +23,34 @@ async function run() {
         console.log("Connected successfully to server");
         const db = client.db(databaseName);
 
-    db.collection('users').deleteMany({
-        age: 28
-    }).then(result=>{
+    db.collection('users').updateOne({
+        _id: new ObjectId('615aa773a31ee9e15969138d')
+    },{
+        $set:{
+            name:"Kasuni"
+        },
+        $inc:{
+            age: 1
+        }
+    }).then(result =>{
+        console.log(result);
+    }).catch(error=>{
+        console.log(error);
+    });
+
+
+    db.collection('tasks').updateMany({
+        completed:true
+    }, {
+        $set: {
+            completed:false
+        }
+    }).then(result =>{
         console.log(result);
     }).catch(error => {
         console.log(error);
     });
 
-    db.collection('tasks').deleteOne({
-        description: "Processing task collection creation"
-    }).then(result => {
-        console.log(result);
-    }).catch(error => {
-        console.log(error);
-    })
 
     } finally {
         // Ensures that the client will close when you finish/error
